@@ -11,7 +11,7 @@ const AppLayout = () => {
         <Outlet/>
       </main>
       <footer className="p-10 text-center mt-10 bg-gray-800">
-        Made with care by Helal
+        Made with care by Helal Uddin
       </footer>
     </>
   )
