@@ -90,6 +90,7 @@ const PostJob = () => {
         </div> 
 
         <div className="flex gap-4 items-center">
+          <div className="flex-grow">
           <Controller
             name="location"
             control={control}
@@ -113,8 +114,9 @@ const PostJob = () => {
                 </SelectContent>
               </Select>
               )}
-            />
+            />{errors.location && <p className="text-red-500">{errors.location.message}</p>}</div>
 
+          <div className="flex-grow">
             <Controller
             name="company_id"
             control={control}
@@ -140,13 +142,13 @@ const PostJob = () => {
               </SelectContent>
             </Select>     
             )}
-          />
+          />{errors.company_id && <p className="text-red-500">{errors.company_id.message}</p>}
+          </div>
           
           <AddCompanyDrawer fetchCompanies={fnCompanies}/>
         </div>
-        {errors.location && <p className="text-red-500">{errors.location.message}</p>}
-        {errors.company_id && <p className="text-red-500">{errors.company_id.message}</p>}
-
+        
+        
         <Controller
             name="requirements"
             control={control}

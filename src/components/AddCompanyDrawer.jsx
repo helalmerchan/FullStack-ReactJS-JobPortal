@@ -53,14 +53,17 @@ const AddCompanyDrawer = ({fetchCompanies}) => {
           <DrawerTitle>Add a new company</DrawerTitle>
         </DrawerHeader>
         <form className="flex gap-2 p-4 pb-0">
-          <Input placeholder="Company Name" {...register("name")}/>
-          <Input type="file" accept="image/*" className="file:text-gray-500" {...register("logo")}/>
+          <div className="flex-grow">
+            <Input placeholder="Company Name" {...register("name")}/>
+          {errors.name && <p className="text-red-500 mt-2">{errors.name.message}</p>}
+          </div>
+          <div className="flex-grow">
+            <Input type="file" accept="image/*" className="file:text-gray-500" {...register("logo")}/>
+            {errors.logo && <p className="text-red-500 mt-2">{errors.logo.message}</p>}
+          </div>
 
           <Button type="button" variant="destructive" className="w-40" onClick={handleSubmit(onSubmit)}>Submit</Button>
-        </form>
-        {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-
-        {errors.logo && <p className="text-red-500">{errors.logo.message}</p>}
+        </form>      
 
         {errorAddCompany?.message && (
           <p className="text-red-500">{errorAddCompany?.message}</p>
