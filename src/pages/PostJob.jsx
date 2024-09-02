@@ -1,14 +1,18 @@
 import { getCompanies } from "@/api/apiCompanies";
+import { addNewJob } from "@/api/apiJobs";
+import AddCompanyDrawer from "@/components/AddCompanyDrawer";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/clerk-react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import MDEditor from "@uiw/react-md-editor";
 import { State } from "country-state-city";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { BarLoader } from "react-spinners";
 import { z } from "zod"
 
@@ -24,6 +28,7 @@ const schema = z.object({
 
 const PostJob = () => {
   const {isLoaded, user} = useUser();
+  const navigate = useNavigate();
 
   const {register, control, handleSubmit, formState:{errors}} = useForm({
     defaultValue: {
@@ -40,6 +45,27 @@ const PostJob = () => {
     if(isLoaded) fnCompanies();
   }, [isLoaded]);
 
+  const {
+    loading: loadingCreateJob,
+    error: errorCreateJob,
+    data: dataCreateJob,
+    fn: fnCreateJob,
+  } = useFetch(addNewJob);
+
+  const onSubmit = (data) => {
+    fnCreateJob({
+      ...data,
+      recruiter_id: user.id,
+      isOpen: true
+    })
+  }
+
+  useEffect(()=>{
+    if(dataCreateJob?.length>0) {
+      navigate("/jobs")
+    }
+  }, [loadingCreateJob])
+
   if(!isLoaded || loadingCompanies){
     return <BarLoader className="mb-4" width={'100%'} color="#36d7b7"/>
   }
@@ -52,7 +78,7 @@ const PostJob = () => {
     <>
       <h2 className="gradient-title font-extrabold py-3 text-4xl sm:text-6xl text-center pb-8">Post a Job</h2>
 
-      <form className="flex flex-col gap-4 p-4 pb-0">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 p-4 pb-0">
         <div>
         <Input placeholder="Job Title" {...register("title")} />
         {errors.title && <p className="text-red-500">{errors.title.message}</p>}
@@ -116,8 +142,26 @@ const PostJob = () => {
             )}
           />
           
-          {/* add copany drawer */}
+          <AddCompanyDrawer fetchCompanies={fnCompanies}/>
         </div>
+        {errors.location && <p className="text-red-500">{errors.location.message}</p>}
+        {errors.company_id && <p className="text-red-500">{errors.company_id.message}</p>}
+
+        <Controller
+            name="requirements"
+            control={control}
+            render={({field}) => ( 
+
+            <MDEditor value={field.value} onChange={field.onChange}/> 
+              
+          )} 
+        />
+        {errors.requirements && <p className="text-red-500">{errors.requirements.message}</p>}
+
+        {errorCreateJob?.message && <p className="text-red-500">{errorCreateJob?.message}</p>}
+
+        {loadingCreateJob && <BarLoader className="mb-4" width={'100%'} color="#36d7b7"/>}  
+        <Button type="submit" variant="blue" size="lg" className="mt-2">Post Job</Button>
       </form>
     </>
   )
